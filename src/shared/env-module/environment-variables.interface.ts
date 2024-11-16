@@ -6,4 +6,5 @@ export interface EnvironmentVariables {
   REDIS_USERNAME: string | undefined;
   REDIS_PASSWORD: string | undefined;
   MONGO_CONNECTION_URI: string;
+  BETTERSTACK_SOURCE_TOKEN: string;
 }
