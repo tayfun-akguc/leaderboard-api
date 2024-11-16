@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PinoLoggerModule } from './shared';
 
 @Module({
-  imports: [],
+  imports: [PinoLoggerModule],
   controllers: [AppController],
   providers: [AppService],
 })
