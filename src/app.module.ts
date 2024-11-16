@@ -7,9 +7,10 @@ import {
   PinoLoggerModule,
   RedisModule,
 } from './shared';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [EnvModule, PinoLoggerModule, RedisModule, MongoModule],
+  imports: [EnvModule, PinoLoggerModule, RedisModule, MongoModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
