@@ -7,4 +7,5 @@ export interface EnvironmentVariables {
   REDIS_PASSWORD: string | undefined;
   MONGO_CONNECTION_URI: string;
   BETTERSTACK_SOURCE_TOKEN: string;
+  JWT_SECRET: string;
 }

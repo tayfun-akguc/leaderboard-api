@@ -9,6 +9,7 @@ export const EnvironmentValidationSchema = Joi.object({
   REDIS_CONNECT_TIMEOUT: Joi.number().required(),
   MONGO_CONNECTION_URI: Joi.string().required(),
   BETTERSTACK_SOURCE_TOKEN: Joi.string().required(),
+  JWT_SECRET: Joi.string().required(),
 });
 
 export const ValidationOptions = {
