@@ -13,12 +13,14 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserDto> {
-    const user = new this.userModel({
-      ...createUserDto,
-    });
-    const saved = await user.save();
-    this.logger.log({ ...createUserDto }, 'New user created!');
-    const { _id, username, createdAt, updatedAt } = saved.toJSON();
-    return new UserDto(_id.toString(), username, createdAt, updatedAt);
+    const user = await this.userModel.create({ ...createUserDto });
+    const response = new UserDto(
+      user._id.toString(),
+      user.username,
+      user.createdAt,
+      user.updatedAt,
+    );
+    this.logger.log({ ...response }, 'New user created!');
+    return response;
   }
 }
