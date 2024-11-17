@@ -43,8 +43,6 @@ jobs:
           image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}'
           flags: '--allow-unauthenticated --memory=512Mi --port=3000'
           env_vars: |-
-            FRUIT=apple
-            SENTENCE=" this will retain leading and trailing spaces "
             NODE_ENV=PROD
           secrets: |-
             REDIS_HOST=REDIS_HOST:latest
@@ -53,6 +51,8 @@ jobs:
             REDIS_PASSWORD=REDIS_PASSWORD:latest
             REDIS_CONNECT_TIMEOUT=REDIS_CONNECT_TIMEOUT:latest
             MONGO_CONNECTION_URI=MONGO_CONNECTION_URI:latest
+            BETTERSTACK_SOURCE_TOKEN=BETTERSTACK_SOURCE_TOKEN:latest
+            JWT_SECRET=JWT_SECRET:latest
       # https://cloud.google.com/sdk/gcloud/reference/run/deploy#FLAGS
       - name: 'Show output'
         run: |2-
