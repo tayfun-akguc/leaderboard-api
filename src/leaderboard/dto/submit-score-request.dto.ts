@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsString, Min } from 'class-validator';
 
 export class SubmitScoreRequestDto {
   @IsNumber()
   @ApiProperty()
+  @Min(0)
   score: number;
 
   @IsString()

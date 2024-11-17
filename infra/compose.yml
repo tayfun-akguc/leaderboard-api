@@ -39,6 +39,26 @@ services:
       - ./redis-insight:/data
     networks:
       - leaderboard-api-network
+  app:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    container_name: 'leaderboard-api'
+    ports:
+      - '8080:3000'
+    environment:
+      - NODE_ENV=DOCKER
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_CONNECT_TIMEOUT=200
+      - MONGO_CONNECTION_URI=mongodb://mongo:27017/leaderboard-api
+      - BETTERSTACK_SOURCE_TOKEN=1111
+      - JWT_SECRET=jwt-secret
+    depends_on:
+      - redis
+      - mongo
+    networks:
+      - leaderboard-api-network
 
 networks:
   leaderboard-api-network:
