@@ -1,11 +1,23 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { ScoreOperations } from '../schema';
 
 export class SubmitScoreResponseDto {
+  @ApiProperty()
   userId: string;
+
+  @ApiProperty()
   gameId: string;
+
+  @ApiProperty()
   score: number;
+
+  @ApiProperty()
   rank: number;
+
+  @ApiProperty()
   submittedScore: number;
+
+  @ApiProperty()
   operation: ScoreOperations;
 
   constructor(
