@@ -12,7 +12,6 @@ import { EnvironmentVariables } from '../env-module';
       inject: [ConfigService],
       global: true,
       useFactory: (configService: ConfigService<EnvironmentVariables>) => {
-        console.log('secret: ', configService.get('JWT_SECRET'));
         return {
           secret: configService.get('JWT_SECRET'),
           signOptions: {
