@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { REDIS_TOKEN, RedisClient } from 'src/shared';
 import {
   ScoreOperations,
@@ -8,6 +8,8 @@ import {
 
 @Injectable()
 export class ScoreStorageService implements OnModuleInit {
+  private readonly logger = new Logger(ScoreStorageService.name);
+
   private static LEADERBOARD_KEY = 'leaderboard';
   //* Use the date to tie break when scores are same
   private readonly epochalypse = new Date('2038-01-19T03:14:07').getTime();
@@ -30,10 +32,15 @@ export class ScoreStorageService implements OnModuleInit {
     }
     //* For Optimistic Lock
     await this.redis.watch(ScoreStorageService.LEADERBOARD_KEY);
+    const scoreWithTieBreak = this.applyTieBreak(score);
+    this.logger.log(
+      { tie_break_score: scoreWithTieBreak, submitted_score: score },
+      `Submitted score: ${score}. After tie break applied: ${scoreWithTieBreak}`,
+    );
     const trx = this.redis.multi();
     await trx.zadd(
       ScoreStorageService.LEADERBOARD_KEY,
-      this.applyTieBreak(score),
+      scoreWithTieBreak,
       //* score,
       member,
     );
