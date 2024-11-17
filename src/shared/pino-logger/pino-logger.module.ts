@@ -11,21 +11,29 @@ import { EnvironmentVariables } from '../env-module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService<EnvironmentVariables>) => {
         const transportTargets: TransportMultiOptions = {
-          targets: [
-            {
-              target: 'pino-pretty',
-              options: {
-                singleLine: true,
-              },
-            },
-            {
-              target: '@logtail/pino',
-              options: {
-                sourceToken: configService.get('BETTERSTACK_SOURCE_TOKEN'),
-              },
-            },
-          ],
+          targets: [],
         };
+        switch (configService.get('NODE_ENV')) {
+          case 'PROD':
+            transportTargets['targets'] = [
+              {
+                target: '@logtail/pino',
+                options: {
+                  sourceToken: configService.get('BETTERSTACK_SOURCE_TOKEN'),
+                },
+              },
+            ];
+            break;
+          default:
+            transportTargets['targets'] = [
+              {
+                target: 'pino-pretty',
+                options: {
+                  singleLine: true,
+                },
+              },
+            ];
+        }
 
         return {
           pinoHttp: {
