@@ -1,0 +1,211 @@
+{
+	"info": {
+		"_postman_id": "a5da9d22-040c-46ae-9b8e-c6dddc1fe545",
+		"name": "Leaderboard Api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36793563"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Sign-in",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();\r",
+									"pm.environment.set(\"accessToken\", response.accessToken);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"tayfun\",\r\n    \"password\": \"1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiPrefix}}/auth/local/sign-in",
+							"host": [
+								"{{apiPrefix}}"
+							],
+							"path": [
+								"auth",
+								"local",
+								"sign-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign-up",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();\r",
+									"pm.environment.set(\"accessToken\", response.accessToken);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{$randomUserName}}\",\r\n    \"password\": \"1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiPrefix}}/auth/local/sign-up",
+							"host": [
+								"{{apiPrefix}}"
+							],
+							"path": [
+								"auth",
+								"local",
+								"sign-up"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Leaderboard",
+			"item": [
+				{
+					"name": "Submit Score",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"score\": {{$randomInt}},\r\n    \"gameId\": \"{{$guid}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{apiPrefix}}/leaderboard/submit-score",
+							"host": [
+								"{{apiPrefix}}"
+							],
+							"path": [
+								"leaderboard",
+								"submit-score"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Top Players",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzM3Mzk1NzNmYThmNTk1YTQ5ZTM2ZWQiLCJ1c2VybmFtZSI6IkxldmkuU2NoYWRlbjYiLCJpYXQiOjE3MzE2NzI0MDcsImV4cCI6MTczMTY3MjUyN30.r60sSkNEDM4UnYBDmQwUC4gUBE6hZ5SINqYD11oG5fM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiPrefix}}/leaderboard/top?page=1&limit=100",
+							"host": [
+								"{{apiPrefix}}"
+							],
+							"path": [
+								"leaderboard",
+								"top"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Rank",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzM3Mzk1NzNmYThmNTk1YTQ5ZTM2ZWQiLCJ1c2VybmFtZSI6IkxldmkuU2NoYWRlbjYiLCJpYXQiOjE3MzE2NzI0MDcsImV4cCI6MTczMTY3MjUyN30.r60sSkNEDM4UnYBDmQwUC4gUBE6hZ5SINqYD11oG5fM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiPrefix}}/leaderboard/rank?userId=673a74f05d75ffff78374eb2",
+							"host": [
+								"{{apiPrefix}}"
+							],
+							"path": [
+								"leaderboard",
+								"rank"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "673a74f05d75ffff78374eb2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
