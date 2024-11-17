@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { REDIS_TOKEN, RedisClient } from 'src/shared';
 import {
   ScoreOperations,
@@ -7,8 +7,11 @@ import {
 } from './schema';
 
 @Injectable()
-export class ScoreStorageService {
+export class ScoreStorageService implements OnModuleInit {
   private static LEADERBOARD_KEY = 'leaderboard';
+  //* Use the date to tie break when scores are same
+  private readonly epochalypse = new Date('2038-01-19T03:14:07').getTime();
+
   constructor(@Inject(REDIS_TOKEN) private readonly redis: RedisClient) {}
 
   async saveScore(
@@ -18,8 +21,6 @@ export class ScoreStorageService {
     username: string,
   ) {
     const currentScore = await this.getScore(member);
-    console.log({ currentScore, score });
-    console.log(currentScore && currentScore > score);
     if (currentScore !== null && score <= currentScore) {
       return {
         member: member,
@@ -30,7 +31,12 @@ export class ScoreStorageService {
     //* For Optimistic Lock
     await this.redis.watch(ScoreStorageService.LEADERBOARD_KEY);
     const trx = this.redis.multi();
-    await trx.zadd(ScoreStorageService.LEADERBOARD_KEY, score, member);
+    await trx.zadd(
+      ScoreStorageService.LEADERBOARD_KEY,
+      this.applyTieBreak(score),
+      //* score,
+      member,
+    );
     await trx.hset(member, {
       gameId: gameId,
       date: new Date().toISOString(),
@@ -58,7 +64,7 @@ export class ScoreStorageService {
       ScoreStorageService.LEADERBOARD_KEY,
       member,
     );
-    return score ? +score : null;
+    return score ? this.undoTieBreak(+score) : null;
   }
 
   async getRank(member: string): Promise<number | null> {
@@ -102,10 +108,27 @@ export class ScoreStorageService {
     for (let i = 0; i < scores.length; i += 2) {
       membersWithScore.push({
         member: scores[i],
-        score: parseFloat(scores[i + 1]),
+        score: this.undoTieBreak(+scores[i + 1]),
       });
     }
 
     return membersWithScore;
+  }
+
+  private applyTieBreak(score: number): number {
+    return parseFloat(`${score}.${this.epochalypse - Date.now()}`);
+  }
+
+  private undoTieBreak(score: number): number {
+    return Math.floor(score);
+  }
+
+  async onModuleInit() {
+    /*
+    await this.saveScore('c', 101, 'gameId', 'username');
+    await this.saveScore('d', 101, 'gameId', 'username');
+    await this.saveScore('a', 101, 'gameId', 'username');
+    await this.saveScore('b', 101, 'gameId', 'username');
+    */
   }
 }
