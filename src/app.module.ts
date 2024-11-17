@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import {
   AlsModule,
   EnvModule,
@@ -25,7 +23,7 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module';
     AlsModule,
     LeaderboardModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
