@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { REDIS_TOKEN, RedisClient } from 'src/shared';
 import {
   ScoreOperations,
@@ -7,7 +7,7 @@ import {
 } from './schema';
 
 @Injectable()
-export class ScoreStorageService implements OnModuleInit {
+export class ScoreStorageService {
   private static LEADERBOARD_KEY = 'leaderboard';
   constructor(@Inject(REDIS_TOKEN) private readonly redis: RedisClient) {}
 
@@ -16,20 +16,36 @@ export class ScoreStorageService implements OnModuleInit {
     score: number,
     gameId: string,
     username: string,
-  ): Promise<ScoreSchema> {
+  ) {
     const currentScore = await this.getScore(member);
-    if (currentScore && currentScore > score) {
+    console.log({ currentScore, score });
+    console.log(currentScore && currentScore > score);
+    if (currentScore !== null && score <= currentScore) {
       return {
         member: member,
         score: currentScore,
         operation: ScoreOperations.NOT_MODIFIED,
       };
     }
-    await this.redis.zadd(ScoreStorageService.LEADERBOARD_KEY, score, member);
-    await this.saveScorerInformation(
-      member,
-      new ScorerInformationSchema(username, gameId, new Date().toISOString()),
-    );
+    //* For Optimistic Lock
+    await this.redis.watch(ScoreStorageService.LEADERBOARD_KEY);
+    const trx = this.redis.multi();
+    await trx.zadd(ScoreStorageService.LEADERBOARD_KEY, score, member);
+    await trx.hset(member, {
+      gameId: gameId,
+      date: new Date().toISOString(),
+      username: username,
+    });
+    //* Manually wait to test optimistic lock
+    //* await new Promise((resolve) => setTimeout(resolve, 10000));
+    const result = await trx.exec();
+    if (result === null) {
+      return {
+        member: member,
+        score: score,
+        operation: ScoreOperations.FAILED,
+      };
+    }
     return {
       member: member,
       score: score,
@@ -91,9 +107,5 @@ export class ScoreStorageService implements OnModuleInit {
     }
 
     return membersWithScore;
-  }
-
-  async onModuleInit() {
-    await this.getScorerInformation('6739fc31218e288efa5ac081');
   }
 }
