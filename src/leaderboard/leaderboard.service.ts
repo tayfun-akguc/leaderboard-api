@@ -2,11 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   SubmitScoreRequestDto,
   SubmitScoreResponseDto,
+  TopListRequestDto,
+  TopListResponseDto,
   UserRankRequestDto,
+  UserRankResponseDto,
 } from './dto';
 import { Als, ALS_TOKEN } from 'src/shared';
 import { ScoreStorageService } from './score-storage.service';
-import { UserRankResponseDto } from './dto/user-rank-response.dto';
+import { ScoreSchema } from './schema';
 
 @Injectable()
 export class LeaderboardService {
@@ -47,5 +50,29 @@ export class LeaderboardService {
     const scorerInformation =
       await this.scoreStorageService.getScorerInformation(userId);
     return new UserRankResponseDto(userId, rank, score, scorerInformation);
+  }
+
+  async getTopList(topListRequestDto: TopListRequestDto) {
+    const { page, limit } = topListRequestDto;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit - 1;
+    const scores: ScoreSchema[] = await this.scoreStorageService.paginateScores(
+      startIndex,
+      endIndex,
+    );
+
+    const topList: TopListResponseDto[] = [];
+    for (let i = 0; i < scores.length; i++) {
+      const { member, score } = scores[i];
+      const scorerInformation =
+        await this.scoreStorageService.getScorerInformation(member);
+      const rank = await this.scoreStorageService.getRank(member);
+      topList.push({
+        rank: rank,
+        score: score,
+        scorerInformation: scorerInformation,
+      });
+    }
+    return topList;
   }
 }
