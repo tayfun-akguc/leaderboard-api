@@ -3,6 +3,8 @@ import {
   UserRankRequestDto,
   SubmitScoreRequestDto,
   SubmitScoreResponseDto,
+  TopListRequestDto,
+  TopListResponseDto,
 } from './dto';
 import { JwtGuard } from 'src/auth/guard';
 import { LeaderboardService } from './leaderboard.service';
@@ -30,6 +32,15 @@ export class LeaderboardController {
     const response =
       await this.leaderboardService.getUserRank(userRankRequestDto);
 
+    return response;
+  }
+
+  @Get('top')
+  async getTopList(
+    @Query() topListRequestDto: TopListRequestDto,
+  ): Promise<any> {
+    const response =
+      await this.leaderboardService.getTopList(topListRequestDto);
     return response;
   }
 }

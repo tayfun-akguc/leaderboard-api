@@ -71,8 +71,26 @@ export class ScoreStorageService implements OnModuleInit {
   async getScorerInformation(member: string): Promise<ScorerInformationSchema> {
     const scorerInformation: ScorerInformationSchema =
       (await this.redis.hgetall(member)) as unknown as ScorerInformationSchema;
-    console.log(scorerInformation);
     return scorerInformation;
+  }
+
+  async paginateScores(startIndex: number, endIndex: number) {
+    const scores = await this.redis.zrevrange(
+      ScoreStorageService.LEADERBOARD_KEY,
+      startIndex,
+      endIndex,
+      'WITHSCORES',
+    );
+
+    const membersWithScore: ScoreSchema[] = [];
+    for (let i = 0; i < scores.length; i += 2) {
+      membersWithScore.push({
+        member: scores[i],
+        score: parseFloat(scores[i + 1]),
+      });
+    }
+
+    return membersWithScore;
   }
 
   async onModuleInit() {
