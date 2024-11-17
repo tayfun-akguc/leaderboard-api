@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
+  AlsModule,
   EnvModule,
   MongoModule,
   PinoLoggerModule,
@@ -10,6 +11,7 @@ import {
 } from './shared';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { AuthModule } from './auth/auth.module';
     SecurityModule,
     UserModule,
     AuthModule,
+    AlsModule,
+    LeaderboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
