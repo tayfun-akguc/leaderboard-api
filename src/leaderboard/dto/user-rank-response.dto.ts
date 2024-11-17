@@ -1,9 +1,17 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { ScorerInformationSchema } from '../schema';
 
 export class UserRankResponseDto {
+  @ApiProperty()
   userId: string;
+
+  @ApiProperty()
   rank: number;
+
+  @ApiProperty()
   score: number;
+
+  @ApiProperty()
   scorerInformation: ScorerInformationSchema;
 
   constructor(
