@@ -1,0 +1,60 @@
+name: 'Build and Deploy to Cloud Run'
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  PROJECT_ID: 'leaderboard-api-441720'
+  REGION: 'us-central1'
+  GAR_NAME: 'leaderboard-repo'
+  SERVICE: 'leaderboard-api'
+
+jobs:
+  deploy:
+    runs-on: 'ubuntu-latest'
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+      - name: Docker Auth
+        run: |-
+          gcloud auth configure-docker "${{ env.REGION }}-docker.pkg.dev"
+      - name: 'Build and Push Container'
+        run: |-
+          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}" .
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}"
+      - name: 'Deploy to Cloud Run'
+        # END - Docker auth and build
+        id: deploy
+        uses: 'google-github-actions/deploy-cloudrun@v2' # google-github-actions/deploy-cloudrun@v2
+        with:
+          service: '${{ env.SERVICE }}'
+          region: '${{ env.REGION }}'
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GAR_NAME }}/${{ env.SERVICE }}:${{ github.sha }}'
+          flags: '--allow-unauthenticated --memory=512Mi --port=3000'
+          env_vars: |-
+            NODE_ENV=PROD
+          secrets: |-
+            REDIS_HOST=REDIS_HOST:latest
+            REDIS_PORT=REDIS_PORT:latest
+            REDIS_USERNAME=REDIS_USERNAME:latest
+            REDIS_PASSWORD=REDIS_PASSWORD:latest
+            REDIS_CONNECT_TIMEOUT=REDIS_CONNECT_TIMEOUT:latest
+            MONGO_CONNECTION_URI=MONGO_CONNECTION_URI:latest
+            BETTERSTACK_SOURCE_TOKEN=BETTERSTACK_SOURCE_TOKEN:latest
+            JWT_SECRET=JWT_SECRET:latest
+      # https://cloud.google.com/sdk/gcloud/reference/run/deploy#FLAGS
+      - name: 'Show output'
+        run: |2-
+          echo ${{ steps.deploy.outputs.url }}
