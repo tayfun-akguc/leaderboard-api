@@ -1,3 +1,24 @@
+# Versions
+
+- Docker version 27.0.3, build 7d4bcd8
+- Docker Compose version v2.28.1-desktop.1
+- node version: 22.11.0
+- npm version: 10.9.0
+
+# Running on Local
+
+- To install dependencies run: `npm ci`
+- To run required docker containers, running `npm run infra:up` is enough
+- The api will be available on port 8080. The base URL: `http://localhost:8080/api/v1`
+- Running `npm run start:dev` will start the application in development mode, making it accessible on localhost. The base URL: `http://localhost:3000/api/v1`
+
+# Testing
+
+- Postman collections and three different environments are already included in the `postman` folder.
+- After importing the postman folder, ensure that you select the appropriate environment for your requests.
+- Executing the `Auth/Sign-up` request will set the accessToken. Post-response scripts automatically update the `accessToken` environment variable.
+- The `Leaderboard/Submit Score` request requires the `accessToken` to be present in the environment.
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
